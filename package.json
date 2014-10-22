@@ -1,0 +1,35 @@
+{
+    "name": "hxjs",
+    "version": "1.0.0",
+    "readmeFilename": "README.md",
+    "description": "webfront build tools",
+    "homepage": "",
+    "keywords": [
+        "template",
+        "CommonJS",
+        "RequireJS",
+        "SeaJS",
+        "AMD",
+        "CMD"
+    ],
+    "author": "CircleSmall",
+    "repository": {
+        "type": "git",
+        "url": ""
+    },
+    "main": "./src/hx.js",
+    "bin": {
+        "hx": "./bin/hx",
+        "hxjs": "./bin/hx"
+    },
+    "scripts": {
+        "test": "hx ./test/tpl",
+        "test2": "hx ./test/test-all/*"
+    },
+    "dependencies": {
+        "art-template": "3.0.x",
+        "uglify-js": "2.4.0",
+        "semver": "2.3.0"
+    },
+    "license": "BSD"
+}
