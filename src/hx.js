@@ -5,6 +5,8 @@ var defaults = require('./defaults.js');
 var stdout = require('./stdout.js');
 var path = require('./path.js');
 var mu = require('mustache');
+var log = require('./base/log.js');
+var util = require('./base/utils.js');
 
 
 var fs = require('fs');
@@ -19,8 +21,6 @@ var events = require('events');
 require.extensions['.tpl'] = function(module, filename) {
     module.exports = fs.readFileSync(filename, 'utf8');
 };
-
-
 
 var hx = function(base, options) {
     // 模板项目路径
@@ -40,12 +40,6 @@ var hx = function(base, options) {
 
     //开发文件路径
     this.srcpath = path.resolve(this.base, options.src)
-
-    // console.log(this.base)
-    // console.log(this.output)
-    // console.log(this.datapath)
-    // console.log(this.templatepath)
-    // console.log(this.srcpath)
 
     //数据对象
     this.data = {};
@@ -87,9 +81,11 @@ hx.prototype = {
     },
 
     init: function() {
+        log.debug("项目初始化开始");
         this.getTemplate(this.templatepath);
         this.getData(this.datapath);
         this.compile();
+        log.debug("项目初始化结束");
     },
 
     watch: function() {
@@ -114,37 +110,16 @@ hx.prototype = {
     /* 编译文件 */
     compile: function(dir) {
         var me = this;
-        dir = dir || me.srcpath;
-        me.createDir(dir);
-        var srclist = fs.readdirSync(dir);
-        try {
-            srclist.forEach(function(item) {
-                console.log(path.resolve(dir, item))
-                if (fs.statSync(path.join(dir, item)).isDirectory()) {
-                    // 如果是目录
-                    me.compile(path.resolve(dir, item));
-                } else {
-                    //如果是文件
-                    //先创建相应目录
-                    // me.createDir(path.resolve(dir,item).splice(me.srcpath, me.output));
-                    // console.log("file")
-                    // console.log(me.srcpath)
-                    // console.log(me.output)
-                    // console.log(path.resolve(dir).splice(me.srcpath, me.output));
-                    // if (path.extname(item) == ".html") {
-
-                    // }
-                }
-                // var template = fs.readFileSync(path.resolve(me.srcpath, item)).toString();
-                // var p = me.template; //子模板
-                // var data = me.data; //数据
-                // var result = mu.render(template, data, p);
-                // var runtime = path.resolve(me.output, path.basename(item)); // 运行时输出路径
-                // me.writeFile(runtime, result);
-            });
-        } catch (error) {
-            // console.log(error);
-        }
+        util.sync(this.srcpath, this.output, function(ext, content) {
+            if(ext == ".html") {
+                var template = content.toString();//mustcahe 模板
+                var p = me.template; //子模板
+                var data = me.data; //数据
+                var result = mu.render(template, data, p);
+                return result;
+            }
+            return false;
+        });
 
     },
 
